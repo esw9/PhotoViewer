@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="CSS/photoViewer.css">
+    <title>图片查看器</title>
+</head>
+<body onload="initpage()">
+<!--两个放大缩小图标-->
+<div class="buttons">
+    <input type="image" src="img/bigger.png" width="40px" onclick="bigit()">
+    <input type="image" src="img/smaller.png" width="40px" onclick="smallit()">
+</div>
+
+<!--图片展示部分-->
+<div class="showpic">
+    <!--两个箭头图标-->
+    <input type="image" id="left" src="img/left.png" width="70px" onclick="prevpic()"/>
+    <input type="image" id="right" src="img/right.png" width="70px" onclick="nextpic()"/>
+    <!--父元素中的overflow=hidden不对子元素中带absolute的元素起效-->
+    <!--所以要在css中另外定义一个class，其中overflow=hidden，将其加到父元素-->
+    <div class="picture overHidden">
+        <img src="img/1.jpg" id="mypic" onmousedown="mousedown(event)"
+         onmousemove="mousemove(event)" onmouseup="stopMove()" onmouseout="stopMove()">
+    </div>
+    <!--采用定义空标签的方法去除浮动-->
+    <div style="clear: both"></div>
+</div>
+
+<!--缩略图-->
+<div class="abb">
+    <input type="image" src="img/1.jpg" id="abb0" height="80px" onclick="changepic('0')">
+    <input type="image" src="img/2.jpg" id="abb1" height="80px" onclick="changepic('1')">
+    <input type="image" src="img/3.jpg" id="abb2" height="80px" onclick="changepic('2')">
+    <input type="image" src="img/4.jpg" id="abb3" height="80px" onclick="changepic('3')">
+</div>
+
+<script>
+    var deltaX = 0;//记录当前鼠标离图片的位置的纵坐标
+    var deltaY = 0;//记录当前鼠标离图片的位置的纵坐标
+    var curIndex=0;//记录当前图片的下标
+    var W=909;//显示框的宽度
+    var H=500;//显示框的高度
+    var arr=new Array;//将图片存入数组
+    arr[0]="1.jpg";
+    arr[1]="2.jpg";
+    arr[2]="3.jpg";
+    arr[3]="4.jpg";
+    var IsMousedown = false;//记录当前鼠标是否移动
+    //鼠标按下时初始化各变量
+    function mousedown(event) {
+        //去掉浏览器默认的事件
+        event.preventDefault();
+        event.stopPropagation();
+        IsMousedown = true;
+        var mypic = document.getElementById("mypic");
+        //鼠标位置
+        var mouseX = event.clientX;
+        var mouseY = event.clientY;
+        //图片位置
+        var startX = mypic.offsetLeft;
+        var startY = mypic.offsetTop;
+        //记录鼠标离图片左上角的距离
+        deltaX = mouseX - startX;
+        deltaY = mouseY - startY;
+    }
+    //鼠标移动时执行
+    function mousemove(event) {
+        if (IsMousedown == false) {
+            return;
+        }
+        var mypic = document.getElementById("mypic");
+        //重新设置图片位置
+        mypic.style.left = (event.clientX - deltaX) + "px";
+        mypic.style.top = (event.clientY - deltaY) + "px";
+    }
+    //鼠标放开或鼠标移出显示框时执行
+    function stopMove() {
+        IsMousedown = false;
+    }
+    //缩小图片，按1.2倍缩小，从图片中间点开始缩小
+    function smallit() {
+        var mypic = document.getElementById("mypic");
+        //定义缩小后图片的长宽
+        var swidth=mypic.width/1.2;
+        var sheight=mypic.height/1.2;
+        //定义缩小后图片的offset
+        //原来图片的offset加上缩小后图片与原图的长宽差/2
+        var soffsetleft=mypic.offsetLeft+(mypic.width-swidth)/2;
+        var soffsettop=mypic.offsetTop+(mypic.height-sheight)/2;
+        mypic.width=swidth;
+        mypic.height=sheight;
+        mypic.style.left=soffsetleft+"px";
+        mypic.style.top=soffsettop+"px";
+    }
+    //放大图片，按1.2倍放大，从图片中间点开始放大
+    function bigit() {
+        var mypic = document.getElementById("mypic");
+        //定义放大后图片的长宽
+        var bwidth=mypic.width*1.2;
+        var bheight=mypic.height*1.2;
+        //定义放大后图片的offset
+        //原来图片的offset缩小后图片减去与原图的长宽差/2
+        var boffsetleft=mypic.offsetLeft-(bwidth-mypic.width)/2;
+        var boffsettop=mypic.offsetTop-(bheight-mypic.height)/2;
+        mypic.width=bwidth;
+        mypic.height=bheight;
+        mypic.style.left=boffsetleft+"px";
+        mypic.style.top=boffsettop+"px";
+    }
+    //切换到下张图片
+    function nextpic(){
+        //将当前图片的缩略图边框去除
+        var preAbb=document.getElementById("abb"+curIndex);
+        preAbb.style.border="none";
+        var pic=document.getElementById("mypic");
+        //更改curIndex的值
+        if (curIndex==3)
+        {
+            curIndex=0;
+        }
+        else if(curIndex==2){
+            curIndex=3;
+        }
+        else if(curIndex==1){
+            curIndex=2;
+        }
+        else if(curIndex==0){
+            curIndex=1;
+        }
+        else
+        {
+            curIndex=curIndex+1;
+        }
+        //更改图片的地址
+        pic.src="img/"+arr[curIndex];
+        //重新定义图片大小
+        ResizeImage();
+        //将当前图片的缩略图加上边框
+        var abb=document.getElementById("abb"+curIndex);
+        abb.style.border="solid 3px yellow";
+    }
+    //切换到上张图片
+    function prevpic(){
+        //将当前图片的缩略图边框去除
+        var nextAbb=document.getElementById("abb"+curIndex);
+        nextAbb.style.border="none";
+        var pic=document.getElementById("mypic");
+        //更改curIndex
+        if (curIndex==3)
+        {
+            curIndex=2;
+        }
+        else if(curIndex==2){
+            curIndex=1;
+        }
+        else if(curIndex==1){
+            curIndex=0;
+        }
+        else if(curIndex==0){
+            curIndex=3;
+        }
+        else
+        {
+            curIndex=curIndex-1;
+        }
+        //更改图片的地址
+        pic.src="img/"+arr[curIndex];
+        //重新定义图片大小
+        ResizeImage();
+        //将当前图片的缩略图加上边框
+        var abb=document.getElementById("abb"+curIndex);
+        abb.style.border="solid 3px yellow";
+    }
+    //点击缩略图查看图片
+    function changepic(abbId){
+        //将当前图片的缩略图边框去除
+        var curAbb=document.getElementById("abb"+curIndex);
+        curAbb.style.border="none";
+        //给切换后的图片缩略图加上边框
+        var abb=document.getElementById("abb"+abbId);
+        abb.style.border="solid 3px yellow";
+        //更改curIndex的值
+        curIndex=abbId;
+        //改变图片地址
+        var pic=document.getElementById("mypic");
+        pic.src="img/"+arr[curIndex];
+        //重新定义图片大小
+        ResizeImage();
+    }
+    //初始化页面
+    function initpage(){
+        //重新定义图片大小
+        ResizeImage();
+        //将当前图片的缩略图加上边框
+        var curAbb=document.getElementById("abb"+curIndex);
+        curAbb.style.border="solid 3px yellow";
+    }
+    //将图片的大小按比例缩放,适合显示在宽W和高H的区域内
+    function ResizeImage()
+    {
+        var pic=document.getElementById("mypic");
+        pic.style.left=0;
+        pic.style.top=0;
+        var image = new Image();
+        image.src = pic.src;
+        if(image.width>0 && image.height>0)
+        {
+            //比较纵横比
+            if(image.width/image.height >= W/H)//相对显示框：宽>高
+            {
+                if(image.width > W) //宽度大于显示框宽度W，应压缩高度
+                {
+                    pic.width = W;
+                    pic.height = (image.height*W)/image.width;
+                }
+                else //宽度少于或等于显示框宽度W，图片完全显示
+                {
+                    pic.width = image.width;
+                    pic.height = image.height;
+                }
+            }
+            else//同理
+            {
+                if(image.height > H)
+                {
+                    pic.height = H;
+                    pic.width = (image.width*H)/image.height;
+                }
+                else
+                {
+                    pic.width = image.width;
+                    pic.height = image.height;
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>

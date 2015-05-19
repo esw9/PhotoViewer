@@ -1,0 +1,42 @@
+body{
+    margin: 0px;
+    padding: 0px;
+}
+.showpic{
+    margin: 0 100px;
+    overflow: hidden;
+    height: 500px;
+}
+.showpic .picture{
+    margin:0 120px;
+    overflow: hidden;
+    position: relative;
+    height: 498px;
+    border: solid 1px gray;
+}
+.overHidden{
+    overflow: hidden;
+}
+.showpic .picture #mypic{
+    position: absolute;
+}
+.showpic #left{
+    float: left;
+    margin-top: 215px;
+}
+.showpic #right{
+    float: right;
+    margin-top: 215px;
+}
+.buttons{
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.abb{
+    text-align: center;
+    position: relative;
+}
+.abb input{
+    margin: 20px;
+}
